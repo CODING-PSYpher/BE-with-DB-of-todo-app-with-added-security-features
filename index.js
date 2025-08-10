@@ -14,11 +14,11 @@ app.use(express.json());
 app.post("/signup", async function(req, res) {
     
     const requiredBody= z.object({
-        email : z.email(),
+        email : z.string().email(),
         name: z.string().min(1).max(100),
         password:z.string().min(8).max(20)
     })
-    const pasrsedDataWithSuccess= requiredBody.safeParse(req.bady);
+    const pasrsedDataWithSuccess= requiredBody.safeParse(req.body);
     
     if (!pasrsedDataWithSuccess.success) {
         res.json({
@@ -29,8 +29,9 @@ app.post("/signup", async function(req, res) {
     
     
     const email = req.body.email;
-    const password = req.body.password;
     const name = req.body.name;
+    const password = req.body.password;
+    
 
     let errorThrown= false;
    try{
@@ -43,13 +44,13 @@ app.post("/signup", async function(req, res) {
     
     
    }catch(error){
-    res.json({
+    return res.json({
         message:'User already exist'
     })
    }
 
    if(!errorThrown){
-    res.json({
+    return res.json({
         message: "You are signed up"
     })
    }
@@ -71,7 +72,7 @@ app.post("/signin", async function(req, res) {
         })
     }
 
-    const passwordMatch = bcrypt.compare(password, response.password);
+    const passwordMatch = await bcrypt.compare(password, response.password);
 
 
     if (passwordMatch) {
